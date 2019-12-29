@@ -8,7 +8,7 @@ public class TileObject : MonoBehaviour
     {
         get
         {
-            return tile.id;
+            return tile.ID;
         }
     }
     private Tile tile;

@@ -96,6 +96,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -191,6 +192,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -383,6 +385,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -501,8 +504,14 @@ MonoBehaviour:
   PossibleTiles:
   - TileSprite: {fileID: 21300000, guid: d722971f58a960744a7c177069572925, type: 3}
     Solid: 0
+    ID: 0
   - TileSprite: {fileID: 21300000, guid: c6b0d44a956a175418a4b0ddbc545166, type: 3}
     Solid: 1
+    ID: 0
+  BaseTileObject: {fileID: 422686961}
+  MapSize: {x: 30, y: 30}
+  BaseBG: 0
+  BaseGround: 1
 --- !u!114 &1576010420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -515,10 +524,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84304fd0438571342ac8c7692876f88b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Size: {x: 30, y: 30}
-  TileObject: {fileID: 422686961}
-  BaseBG: 0
-  BaseGround: 1
 --- !u!4 &1576010421
 Transform:
   m_ObjectHideFlags: 0
