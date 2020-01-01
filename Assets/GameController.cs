@@ -21,6 +21,7 @@ public class GameController : MonoBehaviour
     [HideInInspector]
     public TileObject[,] Map;
     private int selected;
+    private string saveState;
     private void Awake()
     {
         Instance = this;
@@ -42,6 +43,14 @@ public class GameController : MonoBehaviour
                 selected = i;
             }
         }
+        if (Input.GetButtonUp("Fire2"))
+        {
+            saveState = ToSaveData();
+        }
+        if (Input.GetButtonUp("Fire3"))
+        {
+            FromSaveData(saveState);
+        }
     }
     public void GenerateEmptyMap(Vector2Int newSize)
     {
@@ -51,7 +60,7 @@ public class GameController : MonoBehaviour
             {
                 for (int j = 0; j < MapSize.y; j++)
                 {
-                    Destroy(Map[i, j]);
+                    Destroy(Map[i, j].gameObject);
                 }
             }
         }
@@ -61,18 +70,17 @@ public class GameController : MonoBehaviour
         {
             for (int j = 0; j < MapSize.y; j++)
             {
-                TileObject current = Instantiate(BaseTileObject);
-                current.transform.position = new Vector2((i - (MapSize.x - 1) / 2) * current.transform.localScale.x, (j - (MapSize.y - 1) / 2) * current.transform.localScale.y);
+                Map[i, j] = Instantiate(BaseTileObject);
+                Map[i, j].transform.position = new Vector2((i - (MapSize.x - 1) / 2) * Map[i, j].transform.localScale.x, (j - (MapSize.y - 1) / 2) * Map[i, j].transform.localScale.y);
+                Map[i, j].gameObject.SetActive(true);
                 if (i == 0 || j == 0 || i == MapSize.x - 1 || j == MapSize.y - 1)
                 {
-                    current.ChangeTo(PossibleTiles[BaseGround]);
+                    Map[i, j].ChangeTo(PossibleTiles[BaseGround]);
                 }
                 else
                 {
-                    current.ChangeTo(PossibleTiles[BaseBG]);
+                    Map[i, j].ChangeTo(PossibleTiles[BaseBG]);
                 }
-                Instance.Map[i, j] = current;
-                current.gameObject.SetActive(true);
             }
         }
     }
@@ -91,10 +99,23 @@ public class GameController : MonoBehaviour
             }
             result += ";";
         }
+        Debug.Log("Saved!\r\n" + result);
         return result;
     }
     public void FromSaveData(string data)
     {
         string sizeString = data.Split('\n')[0];
+        string[] size = sizeString.Split(',');
+        GenerateEmptyMap(new Vector2Int(int.Parse(size[0]), int.Parse(size[1])));
+        string[] rows = data.Split('\n')[1].Split(';');
+        for (int i = 0; i < MapSize.x; i++)
+        {
+            string[] row = rows[i].Split(',');
+            for (int j = 0; j < MapSize.y; j++)
+            {
+                Map[i, j].ChangeTo(PossibleTiles[int.Parse(row[j])]);
+            }
+        }
+        Debug.Log("Retrieved!\r\n" + data);
     }
 }

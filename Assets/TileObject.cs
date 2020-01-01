@@ -18,7 +18,10 @@ public class TileObject : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         collider = GetComponent<Collider2D>();
-        tile = new Tile();
+        if (tile == null)
+        {
+            tile = new Tile();
+        }
     }
     private void OnMouseOver()
     {
@@ -48,6 +51,7 @@ public class TileObject : MonoBehaviour
         }
         tile.TileSprite = other.TileSprite;
         tile.Solid = other.Solid;
+        tile.ID = other.ID;
         UpdateData();
     }
 }

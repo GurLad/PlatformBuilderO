@@ -1,0 +1,108 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using UnityEngine;
+
+public static class SocketFunctions
+{
+    public static Socket Connect()
+    {
+        try
+        {
+
+            // Establish the remote endpoint  
+            // for the socket. This example  
+            // uses port 11111 on the local  
+            // computer. 
+            IPHostEntry ipHost = Dns.GetHostEntry(Dns.GetHostName());
+            IPAddress ipAddr = ipHost.AddressList[0];
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4242);
+
+            // Creation TCP/IP Socket using  
+            // Socket Class Costructor 
+            Socket sender = new Socket(ipAddr.AddressFamily,
+                       SocketType.Stream, ProtocolType.Tcp);
+
+            try
+            {
+
+                // Connect Socket to the remote  
+                // endpoint using method Connect() 
+                sender.Connect(localEndPoint);
+
+                // We print EndPoint information  
+                // that we are connected 
+                Debug.Log("Socket connected to -> " +
+                              sender.RemoteEndPoint.ToString());
+                return sender;
+            }
+
+            // Manage of Socket's Exceptions 
+            catch (System.ArgumentNullException ane)
+            {
+
+                Debug.LogError("ArgumentNullException : " + ane.ToString());
+            }
+
+            catch (SocketException se)
+            {
+
+                Debug.LogError("SocketException : " + se.ToString());
+            }
+
+            catch (System.Exception e)
+            {
+                Debug.LogError("Unexpected exception : " + e.ToString());
+            }
+        }
+
+        catch (System.Exception e)
+        {
+
+            Debug.LogError(e.ToString());
+        }
+        return null;
+    }
+    public static void CloseSocket(this Socket sender)
+    {
+        // Close Socket using  
+        // the method Close() 
+        sender.Shutdown(SocketShutdown.Both);
+        sender.Close();
+    }
+    public static void SendOne(this Socket sender, string data)
+    {
+        byte[] messageSent = Encoding.UTF8.GetBytes(data.Length.ToString() + '\a' + data);
+        int byteSent = sender.Send(messageSent);
+    }
+    public static string RecieveOne(this Socket sender)
+    {
+        // Data buffer 
+        byte[] messageReceived = new byte[1024];
+
+        // We receive the messagge using  
+        // the method Receive(). This  
+        // method returns number of bytes 
+        // received, that we'll use to  
+        // convert them to string 
+        int numFilled = 0;
+        do
+        {
+            sender.Receive(messageReceived, numFilled, 1, SocketFlags.None);
+        } while (messageReceived[numFilled++] != '\a');
+        int size = int.Parse(Encoding.UTF8.GetString(messageReceived, 0, numFilled - 1));
+        Debug.Log("Size: " + size);
+        if (size == 0)
+        {
+            return "";
+        }
+        sender.Receive(messageReceived, size, SocketFlags.None);
+        string messageString = Encoding.UTF8.GetString(messageReceived);
+        messageString = messageString.Substring(0, messageString.Length - 1);
+        Debug.Log("Message from Server -> " +
+              messageString);
+        return messageString;
+    }
+}
