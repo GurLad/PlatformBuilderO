@@ -99,10 +99,34 @@ public static class SocketFunctions
             return "";
         }
         sender.Receive(messageReceived, size, SocketFlags.None);
-        string messageString = Encoding.UTF8.GetString(messageReceived);
-        messageString = messageString.Substring(0, messageString.Length - 1);
+        string messageString = Encoding.UTF8.GetString(messageReceived,0,size);
+        Debug.Log(messageString.Length - 1);
+        //messageString = messageString.Substring(0, 4);
         Debug.Log("Message from Server -> " +
               messageString);
         return messageString;
+    }
+    public static void SendLargeData(this Socket sender, string data)
+    {
+        int trueSize = Mathf.CeilToInt(data.Length / 1024.0f);
+        sender.SendOne(trueSize.ToString());
+        while (data.Length > 1024)
+        {
+            Debug.Log("Sent:\r\n" + data.Substring(0, 1024));
+            sender.SendOne(data.Substring(0, 1024));
+            data = data.Substring(1024);
+        }
+        Debug.Log("Sent:\r\n" + data);
+        sender.SendOne(data);
+    }
+    public static string ReceiveLargeData(this Socket sender)
+    {
+        int fileSize = int.Parse(sender.RecieveOne());
+        string result = "";
+        for (int i = 0; i < fileSize; i++)
+        {
+            result += sender.RecieveOne();
+        }
+        return result;
     }
 }

@@ -25,30 +25,31 @@ while True:
 		fileName = RecieveOne(client_socket)#client_socket.recv(1024)
 		fileName = fileName.decode('utf-8')
 		print("Filename: " + fileName);
-		if fileName[len(fileName) - len("FILE_END"):] != "FILE_END":
-			client_socket.send(b"Error")
-			print("Error!")
-			client_socket.close()
-			continue
-		fileName = fileName[:len(fileName) - len("FILE_END")]
+		#if fileName[len(fileName) - len("FILE_END"):] != "FILE_END":
+		#	client_socket.send(b"Error")
+		#	print("Error!")
+		#	client_socket.close()
+		#	continue
+		#fileName = fileName[:len(fileName) - len("FILE_END")]
 		print("Recieved: " + str(fileName))
 		fileContent = RecieveLargeData(client_socket)
 		#fileContent = client_socket.recv(1024)
 		print("Recieved: " + fileContent)
 		print("Writing...")
 		if FileExists(fileName):
-			file = open(fileName, 'r')
-			temp = json.loads(file.read())
+			file = open(r"data\" + fileName, 'r')
+			temp = file.read().split('~')
 			fileUsername = temp[0]
-			temp = json.loads(fileContent)
+			temp = fileContent.split('~')
 			newUsername = temp[0]
 			#fileUsername != newUsername or 
 			if (fileUsername != newUsername):
 				SendOne(client_socket, b"No access! Changes not saved")
+				print("Nope! Compare:\r\n" + fileUsername + ",\r\n" + newUsername + ".")
 				file.close()
 				client_socket.close();
 				continue
-		file = open(fileName, 'w')
+		file = open(r"data\" + fileName, 'w')
 		file.write(fileContent)
 		file.close()
 		print("Sending data...")
@@ -68,7 +69,7 @@ while True:
 			SendOne(client_socket, b"Nonexistant level")
 		else:
 			SendOne(client_socket, b"Sending...")
-			file = open(fileName, 'r')
+			file = open(r"data\" + fileName, 'r')
 			fileData = file.read()
 			file.close()
 			SendLargeData(client_socket, fileData)

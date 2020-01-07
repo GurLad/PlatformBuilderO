@@ -9,29 +9,12 @@ using static SocketFunctions;
 public enum LoginState { Failed, Succeeded, Created }
 public class NetworkController : MonoBehaviour
 {
-    [Header("Login UI")]
-    public InputField UsernameText;
-    public InputField PasswordText;
-    public Text ResultText;
-    public void LoginButton()
+    public static NetworkController Instance;
+    [HideInInspector]
+    public string CurrentUser;
+    private void Start()
     {
-        switch (Login(UsernameText.text, PasswordText.text))
-        {
-            case LoginState.Failed:
-                ResultText.color = Color.red;
-                ResultText.text = "Wrong password!";
-                break;
-            case LoginState.Succeeded:
-                ResultText.color = Color.green;
-                ResultText.text = "Welcome back, " + UsernameText.text + "!";
-                break;
-            case LoginState.Created:
-                ResultText.color = Color.green;
-                ResultText.text = "Hello, " + UsernameText.text + "! Welcome!";
-                break;
-            default:
-                break;
-        }
+        Instance = this;
     }
     public LoginState Login(string username, string password)
     {
@@ -50,6 +33,7 @@ public class NetworkController : MonoBehaviour
                 return LoginState.Failed;
             }
             sender.CloseSocket();
+            CurrentUser = username;
             return LoginState.Succeeded;
         }
         else
@@ -58,6 +42,7 @@ public class NetworkController : MonoBehaviour
             sender.SendOne("SAVE_PASSWORD");
             sender.SendOne(username);
             sender.SendOne(password);
+            CurrentUser = username;
             return LoginState.Created;
         }
     }
