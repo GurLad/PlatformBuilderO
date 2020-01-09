@@ -8,8 +8,8 @@ def SendLargeData(clientSocket, data):
 	toSend = data.encode('utf-8')
 	for i in range(int(fileSize)):
 		SendOne(clientSocket, toSend[:1024])
+		print("Sent part " + str(i) + ": " + toSend[:1024].decode('utf-8'))
 		toSend = toSend[1024:]
-		print("Sent part " + str(i) + ": " + toSend.decode('utf-8'))
 	print("Sent data")
 
 def RecieveLargeData(clientSocket):

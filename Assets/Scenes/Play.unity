@@ -1342,7 +1342,7 @@ GameObject:
   - component: {fileID: 1134268908}
   - component: {fileID: 1134268907}
   m_Layer: 5
-  m_Name: InputField
+  m_Name: LevelName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1973,6 +1973,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22a8725efe95de749a3df29d271b7829, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LevelName: {fileID: 1134268907}
 --- !u!114 &1484586286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2016,7 +2017,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1484586285}
         m_MethodName: Click
         m_Mode: 1
         m_Arguments:
@@ -2370,16 +2371,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PossibleTiles:
-  - TileSprite: {fileID: 21300000, guid: d722971f58a960744a7c177069572925, type: 3}
-    Solid: 0
-    ID: 0
   - TileSprite: {fileID: 21300000, guid: c6b0d44a956a175418a4b0ddbc545166, type: 3}
     Solid: 1
     ID: 0
+  - TileSprite: {fileID: 21300000, guid: 2d8cfd05b3f48444a8cfffde4c33f6e9, type: 3}
+    Solid: 1
+    ID: 0
+  - TileSprite: {fileID: 21300000, guid: fbc2087a25f512f4dbecdd872af723ea, type: 3}
+    Solid: 1
+    ID: 0
+  - TileSprite: {fileID: 21300000, guid: 966437a0bc408884492af90047ecd72a, type: 3}
+    Solid: 1
+    ID: 0
+  - TileSprite: {fileID: 21300000, guid: 78aeaf635ebaf284fa1a0c84d657bb51, type: 3}
+    Solid: 1
+    ID: 0
+  - TileSprite: {fileID: 21300000, guid: c771a479ed1c0194a962c61afea89602, type: 3}
+    Solid: 0
+    ID: 0
+  - TileSprite: {fileID: 21300000, guid: e301f1c5ace707140a09f48f35c8387d, type: 3}
+    Solid: 0
+    ID: 0
+  - TileSprite: {fileID: 21300000, guid: c25f9751cf0bff94e821569e6c9e7d07, type: 3}
+    Solid: 0
+    ID: 0
+  - TileSprite: {fileID: 21300000, guid: 517ffef6ebf82d648b129921fbc50a53, type: 3}
+    Solid: 0
+    ID: 0
+  - TileSprite: {fileID: 21300000, guid: d722971f58a960744a7c177069572925, type: 3}
+    Solid: 0
+    ID: 0
   BaseTileObject: {fileID: 422686961}
   MapSize: {x: 30, y: 30}
-  BaseBG: 0
-  BaseGround: 1
+  BaseBG: 9
+  BaseGround: 0
 --- !u!114 &1576010420
 MonoBehaviour:
   m_ObjectHideFlags: 0

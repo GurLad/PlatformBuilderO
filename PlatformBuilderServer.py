@@ -4,8 +4,17 @@ import math
 import os
 from SocketFunctions import *
 
-SERVER_IP = '127.0.0.1'
+hostname = socket.gethostname()    
+IPAddr = socket.gethostbyname(hostname)
+
+SERVER_IP = IPAddr
 PORT = 4242
+
+IPParts = SERVER_IP.split('.')
+tempString = ''
+for i in IPParts:
+	tempString += str("{0:0{1}X}".format(int(i),2))
+print("Server ID: " + tempString)
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((SERVER_IP, PORT))
@@ -23,7 +32,7 @@ while True:
 	print("Recieved request: " + request.decode('utf-8'))
 	if request == b"SAVE_LEVEL":
 		fileName = RecieveOne(client_socket)#client_socket.recv(1024)
-		fileName = fileName.decode('utf-8')
+		fileName = fileName.decode('utf-8') + ".pbl"
 		print("Filename: " + fileName);
 		#if fileName[len(fileName) - len("FILE_END"):] != "FILE_END":
 		#	client_socket.send(b"Error")
@@ -36,8 +45,8 @@ while True:
 		#fileContent = client_socket.recv(1024)
 		print("Recieved: " + fileContent)
 		print("Writing...")
-		if FileExists(fileName):
-			file = open(r"data\" + fileName, 'r')
+		if FileExists("data\\" + fileName):
+			file = open("data\\" + fileName, 'r')
 			temp = file.read().split('~')
 			fileUsername = temp[0]
 			temp = fileContent.split('~')
@@ -49,7 +58,7 @@ while True:
 				file.close()
 				client_socket.close();
 				continue
-		file = open(r"data\" + fileName, 'w')
+		file = open("data\\" + fileName, 'w')
 		file.write(fileContent)
 		file.close()
 		print("Sending data...")
@@ -57,34 +66,34 @@ while True:
 		print("Finished!")
 	elif request == b"SEEK_LEVEL":
 		fileName = RecieveOne(client_socket)#client_socket.recv(1024)
-		fileName = fileName.decode('utf-8')
-		if fileName[len(fileName) - len("FILE_END"):] != "FILE_END":
-			client_socket.send(b"Error")
-			print("Error!")
-			client_socket.close()
-			continue
-		fileName = fileName[:len(fileName) - len("FILE_END")]
+		fileName = fileName.decode('utf-8') + ".pbl"
+		#if fileName[len(fileName) - len("FILE_END"):] != "FILE_END":
+		#	client_socket.send(b"Error")
+		#	print("Error!")
+		#	client_socket.close()
+		#	continue
+		#fileName = fileName[:len(fileName) - len("FILE_END")]
 		print("Recieved: " + str(fileName))
-		if not FileExists(fileName):
+		if not FileExists("data\\" + fileName):
 			SendOne(client_socket, b"Nonexistant level")
 		else:
 			SendOne(client_socket, b"Sending...")
-			file = open(r"data\" + fileName, 'r')
+			file = open("data\\" + fileName, 'r')
 			fileData = file.read()
 			file.close()
 			SendLargeData(client_socket, fileData)
 	elif request == b"SEEK_PASSWORD":
 		username = RecieveOne(client_socket).decode('utf-8')
-		if not FileExists(username + ".user"):
-			open(username + ".user", 'w').close()
-		file = open(username + ".user", 'r')
+		if not FileExists("data\\" + username + ".user"):
+			open("data\\" + username + ".user", 'w').close()
+		file = open("data\\" + username + ".user", 'r')
 		password = file.read()
 		SendOne(client_socket, password.encode('utf-8'))
 		file.close()
 	elif request == b"SAVE_PASSWORD":
 		username = RecieveOne(client_socket).decode('utf-8')
 		password = RecieveOne(client_socket).decode('utf-8')
-		file = open(username + ".user", 'w')
+		file = open("data\\" + username + ".user", 'w')
 		file.write(password)
 		file.close()
 	else:

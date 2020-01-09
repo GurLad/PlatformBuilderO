@@ -104,6 +104,7 @@ public class GameController : MonoBehaviour
     }
     public void FromSaveData(string data)
     {
+        data = data.Split('~')[1];
         string sizeString = data.Split('\n')[0];
         string[] size = sizeString.Split(',');
         GenerateEmptyMap(new Vector2Int(int.Parse(size[0]), int.Parse(size[1])));

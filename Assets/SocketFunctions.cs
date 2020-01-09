@@ -7,6 +7,7 @@ using UnityEngine;
 
 public static class SocketFunctions
 {
+    public static string IPString { get; set; } = "127.0.0.1";
     public static Socket Connect()
     {
         try
@@ -18,7 +19,7 @@ public static class SocketFunctions
             // computer. 
             IPHostEntry ipHost = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddr = ipHost.AddressList[0];
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4242);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse(IPString), 4242);
 
             // Creation TCP/IP Socket using  
             // Socket Class Costructor 
@@ -126,6 +127,25 @@ public static class SocketFunctions
         for (int i = 0; i < fileSize; i++)
         {
             result += sender.RecieveOne();
+        }
+        return result;
+    }
+    public static string HexToIP(string hex)
+    {
+        string result = "";
+        for (int i = 0; i < 4; i++)
+        {
+            result += int.Parse(hex.Substring(i * 2, 2), System.Globalization.NumberStyles.HexNumber) + ".";
+        }
+        return result.Substring(0, result.Length - 1);
+    }
+    public static string IPToHex(string ip)
+    {
+        string result = "";
+        string[] ipParts = ip.Split('.');
+        for (int i = 0; i < 4; i++)
+        {
+            result += int.Parse(ipParts[i]).ToString("X");
         }
         return result;
     }
