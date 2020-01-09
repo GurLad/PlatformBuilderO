@@ -70,7 +70,7 @@ public class GameController : MonoBehaviour
         {
             for (int j = 0; j < MapSize.y; j++)
             {
-                Map[i, j] = Instantiate(BaseTileObject);
+                Map[i, j] = Instantiate(BaseTileObject, transform);
                 Map[i, j].transform.position = new Vector2((i - (MapSize.x - 1) / 2) * Map[i, j].transform.localScale.x, (j - (MapSize.y - 1) / 2) * Map[i, j].transform.localScale.y);
                 Map[i, j].gameObject.SetActive(true);
                 if (i == 0 || j == 0 || i == MapSize.x - 1 || j == MapSize.y - 1)

@@ -19,6 +19,10 @@ public class PlayerController : MonoBehaviour
             vY = JumpForce;
         }
         rigidbody.velocity = new Vector2(Speed * Input.GetAxis("Horizontal"), vY);
+        if (rigidbody.IsSleeping())
+        {
+            transform.position = new Vector3(Mathf.Round(transform.position.x * 16) / 16, Mathf.Round(transform.position.y * 16) / 16, 0);
+        }
     }
     private bool IsGrounded()
     {
