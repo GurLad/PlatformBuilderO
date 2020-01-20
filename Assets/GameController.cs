@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class GameController : MonoBehaviour
     public Vector2Int MapSize;
     public int BaseBG;
     public int BaseGround;
+    public RectTransform TileButton;
     [HideInInspector]
     public TileObject[,] Map;
     private int selected;
@@ -33,6 +35,14 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         GenerateEmptyMap(MapSize);
+        for (int i = 0; i < PossibleTiles.Length; i++)
+        {
+            RectTransform newTileButton = Instantiate(TileButton.gameObject, TileButton.transform.parent).GetComponent<RectTransform>();
+            newTileButton.anchoredPosition = new Vector2(16 * i, 0);
+            newTileButton.GetComponent<Image>().sprite = PossibleTiles[i].TileSprite;
+            newTileButton.GetComponent<SelectTile>().ID = i;
+            newTileButton.gameObject.SetActive(true);
+        }
     }
     private void Update()
     {
@@ -81,6 +91,7 @@ public class GameController : MonoBehaviour
                 {
                     Map[i, j].ChangeTo(PossibleTiles[BaseBG]);
                 }
+                Map[i, j].TileBGID = BaseBG;
             }
         }
     }
@@ -91,7 +102,7 @@ public class GameController : MonoBehaviour
         {
             for (int j = 0; j < MapSize.y; j++)
             {
-                result += Map[i, j].TileID;
+                result += Map[i, j].TileID + "." + Map[i, j].TileBGID;
                 if (j != MapSize.y - 1)
                 {
                     result += ",";
@@ -114,9 +125,32 @@ public class GameController : MonoBehaviour
             string[] row = rows[i].Split(',');
             for (int j = 0; j < MapSize.y; j++)
             {
-                Map[i, j].ChangeTo(PossibleTiles[int.Parse(row[j])]);
+                string[] tileData = row[j].Split('.');
+                Map[i, j].TileBGID = int.Parse(tileData[1]);
+                Map[i, j].ChangeTo(PossibleTiles[int.Parse(tileData[0])]);
             }
         }
         Debug.Log("Retrieved!\r\n" + data);
+        SpawnPlayer();
+    }
+    public void SelectTile(int id)
+    {
+        selected = id;
+    }
+    public void SpawnPlayer()
+    {
+        PlayerController.Instance.transform.position = new Vector3(0, 0, -0.9f);
+        for (int i = 0; i < MapSize.x; i++)
+        {
+            for (int j = 0; j < MapSize.y; j++)
+            {
+                if (Map[i, j].TileType == TileType.Start)
+                {
+                    PlayerController.Instance.transform.position = new Vector3(i - MapSize.x / 2 + 1, j - MapSize.y / 2 + 1, -0.9f);
+                }
+            }
+        }
+        PlayerController.Instance.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        PlayerController.Instance.ChangeWinState(false);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class TileObject : MonoBehaviour
 {
@@ -11,6 +12,25 @@ public class TileObject : MonoBehaviour
             return tile.ID;
         }
     }
+    public int TileBGID
+    {
+        get
+        {
+            return tile.BackgroundID;
+        }
+        set
+        {
+            tile.BackgroundID = value;
+        }
+    }
+    public TileType TileType
+    {
+        get
+        {
+            return tile.TileType;
+        }
+    }
+    public SpriteRenderer BGRenderer;
     private Tile tile;
     private SpriteRenderer spriteRenderer;
     private new Collider2D collider;
@@ -27,11 +47,39 @@ public class TileObject : MonoBehaviour
     {
         if (Input.GetButton("Fire1"))
         {
-            ChangeTo(GameController.Instance.Selected);
+            if (!EventSystem.current.IsPointerOverGameObject())
+            {
+                ChangeTo(GameController.Instance.Selected);
+                if (GameController.Instance.Selected.Background)
+                {
+                    TileBGID = GameController.Instance.Selected.ID;
+                    UpdateData();
+                }
+            }
+        }
+        else if (Input.GetButton("Fire2") && GameController.Instance.Selected.Background)
+        {
+            if (!EventSystem.current.IsPointerOverGameObject())
+            {
+                if (tile.Background)
+                {
+                    ChangeTo(GameController.Instance.Selected);
+                }
+                TileBGID = GameController.Instance.Selected.ID;
+                UpdateData();
+            }
         }
     }
     private void UpdateData()
     {
+        if (tile.BackgroundID != -1)
+        {
+            BGRenderer.sprite = GameController.Instance.PossibleTiles[tile.BackgroundID].TileSprite;
+        }
+        else
+        {
+            BGRenderer.sprite = null;
+        }
         spriteRenderer.sprite = tile.TileSprite;
         collider.isTrigger = !tile.Solid;
         if (collider.isTrigger)
@@ -52,6 +100,25 @@ public class TileObject : MonoBehaviour
         tile.TileSprite = other.TileSprite;
         tile.Solid = other.Solid;
         tile.ID = other.ID;
+        tile.Background = other.Background;
+        tile.TileType = other.TileType;
         UpdateData();
+        if (tile.CustomCollider != other.CustomCollider)
+        {
+            if (other.CustomCollider)
+            {
+                Destroy(collider);
+                collider = gameObject.AddComponent<PolygonCollider2D>();
+                ((PolygonCollider2D)collider).autoTiling = true;
+            }
+            else
+            {
+                Destroy(collider);
+                collider = gameObject.AddComponent<BoxCollider2D>();
+                ((BoxCollider2D)collider).size = new Vector2(0.98f, 0.98f);
+            }
+        }
+        tile.CustomCollider = other.CustomCollider;
+        collider.isTrigger = !tile.Solid;
     }
 }
