@@ -10,12 +10,6 @@ public class DownloadLevel : MonoBehaviour
     public InputField LevelName;
     public void Click()
     {
-        Socket sender = Connect();
-        sender.SendOne("SEEK_LEVEL");
-        sender.SendOne(LevelName.text);
-        if (sender.RecieveOne() != "Nonexistant level")
-        {
-            GameController.Instance.FromSaveData(sender.ReceiveLargeData());
-        }
+        NetworkController.Instance.LoadLevel(LevelName.text);
     }
 }

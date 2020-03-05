@@ -96,6 +96,18 @@ while True:
 		file = open("data\\" + username + ".user", 'w')
 		file.write(password)
 		file.close()
+	elif request == b"SEEK_LEVELS_BY":
+		username = RecieveOne(client_socket).decode('utf-8')
+		result = ""
+		for file in os.listdir("./data/"):
+			if file.endswith(".pbl"):
+				fileName = os.path.join("", file).split('.')[0]
+				file = open("data\\" + fileName + ".pbl", 'r')
+				temp = file.read().split('~')
+				fileUsername = temp[0]
+				if (fileUsername == username):
+					result += fileName + ";"
+		SendOne(client_socket, result.encode('utf-8'))
 	else:
 		SendOne(client_socket, "Hello".encode('utf-8'))
 

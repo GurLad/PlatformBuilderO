@@ -12,9 +12,20 @@ public class NetworkController : MonoBehaviour
     public static NetworkController Instance;
     [HideInInspector]
     public string CurrentUser;
-    private void Start()
+    [HideInInspector]
+    public string CurrentLevel;
+    private void Awake()
     {
-        Instance = this;
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        else
+        {
+            Instance = this;
+        }
+        DontDestroyOnLoad(gameObject);
     }
     public LoginState Login(string username, string password)
     {
@@ -42,8 +53,18 @@ public class NetworkController : MonoBehaviour
             sender.SendOne("SAVE_PASSWORD");
             sender.SendOne(username);
             sender.SendOne(password);
-            CurrentUser = username;
+            CurrentUser = "[VERY_SPECIAL_AND_SECRET_STRING]" + username;
             return LoginState.Created;
+        }
+    }
+    public void LoadLevel(string level)
+    {
+        Socket sender = Connect();
+        sender.SendOne("SEEK_LEVEL");
+        sender.SendOne(level);
+        if (sender.RecieveOne() != "Nonexistant level")
+        {
+            GameController.Instance.FromSaveData(sender.ReceiveLargeData());
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class LoginController : MonoBehaviour
 {
@@ -9,8 +10,6 @@ public class LoginController : MonoBehaviour
     public InputField UsernameText;
     public InputField PasswordText;
     public Text WrongResultText;
-    public Text FinalResultText;
-    public GameObject LoginButton;
     public void Click()
     {
         switch (NetworkController.Instance.Login(UsernameText.text, PasswordText.text))
@@ -20,16 +19,10 @@ public class LoginController : MonoBehaviour
                 WrongResultText.text = "Wrong password!";
                 break;
             case LoginState.Succeeded:
-                FinalResultText.color = new Color(0, 0.5f, 0);
-                FinalResultText.text = "Welcome back, " + UsernameText.text + "!";
-                gameObject.SetActive(false);
-                LoginButton.SetActive(true);
+                SceneManager.LoadScene("LevelSelect");
                 break;
             case LoginState.Created:
-                FinalResultText.color = new Color(0, 0.5f, 0);
-                FinalResultText.text = "Hello, " + UsernameText.text + "! Welcome!";
-                gameObject.SetActive(false);
-                LoginButton.SetActive(true);
+                SceneManager.LoadScene("LevelSelect");
                 break;
             default:
                 break;

@@ -34,7 +34,14 @@ public class GameController : MonoBehaviour
     }
     private void Start()
     {
-        GenerateEmptyMap(MapSize);
+        if (NetworkController.Instance.CurrentLevel != "")
+        {
+            NetworkController.Instance.LoadLevel(NetworkController.Instance.CurrentLevel);
+        }
+        else
+        {
+            GenerateEmptyMap(MapSize);
+        }
         for (int i = 0; i < PossibleTiles.Length; i++)
         {
             RectTransform newTileButton = Instantiate(TileButton.gameObject, TileButton.transform.parent).GetComponent<RectTransform>();
