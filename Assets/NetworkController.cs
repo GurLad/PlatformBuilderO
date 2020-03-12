@@ -14,6 +14,8 @@ public class NetworkController : MonoBehaviour
     public string CurrentUser;
     [HideInInspector]
     public string CurrentLevel;
+    [HideInInspector]
+    public bool JoinOnline = false;
     private void Awake()
     {
         if (Instance != null && Instance != this)

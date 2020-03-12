@@ -16,6 +16,8 @@ for i in IPParts:
 	tempString += str("{0:0{1}X}".format(int(i),2))
 print("Server ID: " + tempString)
 
+onlineLevelsState = {}
+
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((SERVER_IP, PORT))
 server_socket.listen(100)
@@ -107,6 +109,31 @@ while True:
 				fileUsername = temp[0]
 				if (fileUsername == username):
 					result += fileName + ";"
+		SendOne(client_socket, result.encode('utf-8'))
+	elif request == b"SEEK_ONLINE_LEVELS":
+		result = ""
+		for i in onlineLevelsState.keys():
+			result += i + ";"
+		SendOne(client_socket, result.encode('utf-8'))
+	elif request == b"TURN_ONLINE":
+		levelName = RecieveOne(client_socket).decode('utf-8')
+		onlineLevelsState[levelName] = []
+		onlineLevelsState[levelName].append(RecieveOne(client_socket).decode('utf-8'))
+	elif request == b"JOIN_LEVEL":
+		levelName = RecieveOne(client_socket).decode('utf-8')
+		SendOne(client_socket, str(len(onlineLevelsState[levelName])).encode('utf-8'))
+		onlineLevelsState[levelName].append(RecieveOne(client_socket).decode('utf-8'))
+	elif request == b"MOVE_PLAYER":
+		levelName = RecieveOne(client_socket).decode('utf-8')
+		playerID = int(RecieveOne(client_socket).decode('utf-8'))
+		onlineLevelsState[levelName][playerID] = RecieveOne(client_socket).decode('utf-8')
+	elif request == b"SHOW_PLAYERS":
+		levelName = RecieveOne(client_socket).decode('utf-8')
+		playerID = int(RecieveOne(client_socket).decode('utf-8'))
+		result = ""
+		for i in range(len(onlineLevelsState[levelName])):
+			if not i == playerID:
+				result += str(i) + ":" + onlineLevelsState[levelName][i] + "|"
 		SendOne(client_socket, result.encode('utf-8'))
 	else:
 		SendOne(client_socket, "Hello".encode('utf-8'))
