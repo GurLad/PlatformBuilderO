@@ -14,4 +14,5 @@ public class Tile
     public int ID;
     [HideInInspector]
     public int BackgroundID = -1;
+    public Vector2Int Pos;
 }

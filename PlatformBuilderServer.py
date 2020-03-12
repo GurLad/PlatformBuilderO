@@ -17,6 +17,7 @@ for i in IPParts:
 print("Server ID: " + tempString)
 
 onlineLevelsState = {}
+onlineLevelstileChanges = {}
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((SERVER_IP, PORT))
@@ -119,10 +120,13 @@ while True:
 		levelName = RecieveOne(client_socket).decode('utf-8')
 		onlineLevelsState[levelName] = []
 		onlineLevelsState[levelName].append(RecieveOne(client_socket).decode('utf-8'))
+		onlineLevelstileChanges[levelName] = []
+		onlineLevelstileChanges[levelName].append([])
 	elif request == b"JOIN_LEVEL":
 		levelName = RecieveOne(client_socket).decode('utf-8')
 		SendOne(client_socket, str(len(onlineLevelsState[levelName])).encode('utf-8'))
 		onlineLevelsState[levelName].append(RecieveOne(client_socket).decode('utf-8'))
+		onlineLevelstileChanges[levelName].append([])
 	elif request == b"MOVE_PLAYER":
 		levelName = RecieveOne(client_socket).decode('utf-8')
 		playerID = int(RecieveOne(client_socket).decode('utf-8'))
@@ -135,6 +139,17 @@ while True:
 			if not i == playerID:
 				result += str(i) + ":" + onlineLevelsState[levelName][i] + "|"
 		SendOne(client_socket, result.encode('utf-8'))
+	elif request == b"SEND_TILE":
+		levelName = RecieveOne(client_socket).decode('utf-8')
+		playerID = int(RecieveOne(client_socket).decode('utf-8'))
+		for i in range(len(onlineLevelsState[levelName])):
+			if not i == playerID:
+				onlineLevelstileChanges[levelName][i].append(RecieveOne(client_socket).decode('utf-8'))
+	elif request == b"SEEK_TILES":
+		levelName = RecieveOne(client_socket).decode('utf-8')
+		playerID = int(RecieveOne(client_socket).decode('utf-8'))
+		SendOne(client_socket, (';'.join(onlineLevelstileChanges[levelName][playerID])).encode('utf-8'))
+		onlineLevelstileChanges[levelName][playerID].clear()
 	else:
 		SendOne(client_socket, "Hello".encode('utf-8'))
 

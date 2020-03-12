@@ -7,16 +7,21 @@ using static SocketFunctions;
 
 public class OnlineLevelController : MonoBehaviour
 {
+    public static OnlineLevelController Instance;
     public Rigidbody2D Player;
-    public float ChecksPerSecond = 1;
-    public GameObject Canvas;
+    public float PlayerChecksPerSecond = 5;
+    public float TileChecksPerSecond = 1;
+    public GameObject HostOnly;
+    public GameObject OfflineOnly;
     [HideInInspector]
     public List<Rigidbody2D> Players;
     private float count;
+    private float tileCount;
     private int playerID;
     private bool online = false;
     private void Start()
     {
+        Instance = this;
         if (NetworkController.Instance.JoinOnline)
         {
             JoinOnline();
@@ -24,7 +29,7 @@ public class OnlineLevelController : MonoBehaviour
     }
     public void JoinOnline()
     {
-        Canvas.SetActive(false);
+        HostOnly.SetActive(false);
         ShowPlayers();
         Socket sender = Connect();
         sender.SendOne("JOIN_LEVEL");
@@ -38,8 +43,20 @@ public class OnlineLevelController : MonoBehaviour
         sender.SendOne(PlayerToString(Player));
         online = true;
     }
+    public void SendTile(Tile tile)
+    {
+        if (online)
+        {
+            Socket sender = Connect();
+            sender.SendOne("SEND_TILE");
+            sender.SendOne(NetworkController.Instance.CurrentLevel);
+            sender.SendOne(playerID.ToString());
+            sender.SendOne(tile.Pos.x + "," + tile.Pos.y + ":" + tile.ID + ":" + tile.BackgroundID);
+        }
+    }
     public void TurnOnline()
     {
+        OfflineOnly.SetActive(false);
         Socket sender = Connect();
         sender.SendOne("TURN_ONLINE");
         sender.SendOne(NetworkController.Instance.CurrentLevel);
@@ -52,16 +69,35 @@ public class OnlineLevelController : MonoBehaviour
     {
         if (online)
         {
-            count += Time.deltaTime;
-            if (count >= ChecksPerSecond)
+            count += Time.deltaTime * PlayerChecksPerSecond;
+            if (count >= 1)
             {
-                count -= ChecksPerSecond;
+                count -= 1;
                 Socket sender = Connect();
                 sender.SendOne("MOVE_PLAYER");
                 sender.SendOne(NetworkController.Instance.CurrentLevel);
                 sender.SendOne(playerID.ToString());
                 sender.SendOne(PlayerToString(Player));
                 ShowPlayers();
+            }
+            tileCount += Time.deltaTime * TileChecksPerSecond;
+            if (tileCount >= 1)
+            {
+                tileCount -= 1;
+                Socket sender = Connect();
+                sender.SendOne("SEEK_TILES");
+                sender.SendOne(NetworkController.Instance.CurrentLevel);
+                sender.SendOne(playerID.ToString());
+                string[] tileChanges = sender.RecieveOne().Split(';');
+                foreach (var tileChange in tileChanges)
+                {
+                    if (tileChange != "")
+                    {
+                        string[] tile = tileChange.Split(':');
+                        string[] pos = tile[0].Split(',');
+                        GameController.Instance.SetTile(int.Parse(pos[0]), int.Parse(pos[1]), int.Parse(tile[1]), int.Parse(tile[2]));
+                    }
+                }
             }
         }
     }
@@ -82,6 +118,7 @@ public class OnlineLevelController : MonoBehaviour
                 newPlayer.GetComponent<SpriteRenderer>().material.color = new Color(0, 1, 1, 0.5f);
                 Destroy(newPlayer.gameObject.GetComponent<PlayerController>());
                 Destroy(newPlayer.gameObject.GetComponentInChildren<Camera>());
+                Destroy(newPlayer.gameObject.GetComponentInChildren<AudioListener>());
                 Players.Add(newPlayer);
             }
             else if (Players.Count > id && Players[id] == null)

@@ -7,7 +7,23 @@ using static SocketFunctions;
 public class ShowAllOnlineLevels : MonoBehaviour
 {
     public LoadLevel Base;
+    public void Refresh()
+    {
+        Transform[] gameObjects = GetComponentsInChildren<Transform>();
+        for (int i = 0; i < gameObjects.Length; i++)
+        {
+            if (gameObjects[i] != transform && gameObjects[i].gameObject.name != "Refresh")
+            {
+                Destroy(gameObjects[i].gameObject);
+            }
+        }
+        Show();
+    }
     private void Start()
+    {
+        Show();
+    }
+    private void Show()
     {
         Socket sender = Connect();
         sender.SendOne("SEEK_ONLINE_LEVELS");

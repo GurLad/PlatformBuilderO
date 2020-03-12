@@ -51,24 +51,6 @@ public class GameController : MonoBehaviour
             newTileButton.gameObject.SetActive(true);
         }
     }
-    private void Update()
-    {
-        for (int i = 0; i < 10; i++)
-        {
-            if (Input.GetKeyDown((KeyCode)(48 + i)))
-            {
-                selected = i;
-            }
-        }
-        if (Input.GetButtonUp("Fire2"))
-        {
-            saveState = ToSaveData();
-        }
-        if (Input.GetButtonUp("Fire3"))
-        {
-            FromSaveData(saveState);
-        }
-    }
     public void GenerateEmptyMap(Vector2Int newSize)
     {
         if (Map != null)
@@ -99,6 +81,7 @@ public class GameController : MonoBehaviour
                     Map[i, j].ChangeTo(PossibleTiles[BaseBG]);
                 }
                 Map[i, j].TileBGID = BaseBG;
+                Map[i, j].Pos = new Vector2Int(i, j);
             }
         }
     }
@@ -159,5 +142,11 @@ public class GameController : MonoBehaviour
         }
         PlayerController.Instance.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         PlayerController.Instance.ChangeWinState(false);
+    }
+    public void SetTile(int x, int y, int id, int bgID)
+    {
+        Map[x, y].ChangeTo(PossibleTiles[id]);
+        Map[x, y].TileBGID = bgID;
+        Map[x, y].UpdateData();
     }
 }

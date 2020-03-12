@@ -31,6 +31,17 @@ public class TileObject : MonoBehaviour
         }
     }
     public SpriteRenderer BGRenderer;
+    public Vector2Int Pos
+    {
+        get
+        {
+            return tile.Pos;
+        }
+        set
+        {
+            tile.Pos = value;
+        }
+    }
     private Tile tile;
     private SpriteRenderer spriteRenderer;
     private new Collider2D collider;
@@ -69,8 +80,9 @@ public class TileObject : MonoBehaviour
                 UpdateData();
             }
         }
+        OnlineLevelController.Instance.SendTile(tile);
     }
-    private void UpdateData()
+    public void UpdateData()
     {
         if (tile.BackgroundID != -1)
         {
