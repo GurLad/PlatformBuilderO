@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -20,6 +21,10 @@ public class PlayerController : MonoBehaviour
     }
     private void LateUpdate()
     {
+        if (Input.GetButton("Cancel"))
+        {
+            SceneManager.LoadScene("LevelSelect");
+        }
         float vY = rigidbody.velocity.y;
         if (Input.GetButton("Jump") && IsGrounded())
         {
