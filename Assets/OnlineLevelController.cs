@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using UnityEngine;
+using UnityEngine.U2D;
 using UnityEngine.UI;
 using static SocketFunctions;
 
@@ -19,6 +20,7 @@ public class OnlineLevelController : MonoBehaviour
     private float tileCount;
     private int playerID;
     private bool online = false;
+    private List<Tile> tilesToSend = new List<Tile>();
     private void Start()
     {
         Instance = this;
@@ -47,11 +49,7 @@ public class OnlineLevelController : MonoBehaviour
     {
         if (online)
         {
-            Socket sender = Connect();
-            sender.SendOne("SEND_TILE");
-            sender.SendOne(NetworkController.Instance.CurrentLevel);
-            sender.SendOne(playerID.ToString());
-            sender.SendOne(tile.Pos.x + "," + tile.Pos.y + ":" + tile.ID + ":" + tile.BackgroundID);
+            tilesToSend.Add(tile);
         }
     }
     public void TurnOnline()
@@ -85,10 +83,18 @@ public class OnlineLevelController : MonoBehaviour
             {
                 tileCount -= 1;
                 Socket sender = Connect();
+                sender.SendOne("SEND_TILES");
+                sender.SendOne(NetworkController.Instance.CurrentLevel);
+                sender.SendOne(playerID.ToString());
+                string toSend = "";
+                tilesToSend.ForEach(tile => toSend += tile.Pos.x + "," + tile.Pos.y + ":" + tile.ID + ":" + tile.BackgroundID + ";");
+                sender.SendOne(toSend);
+                tilesToSend.Clear();
+                sender = Connect();
                 sender.SendOne("SEEK_TILES");
                 sender.SendOne(NetworkController.Instance.CurrentLevel);
                 sender.SendOne(playerID.ToString());
-                string[] tileChanges = sender.RecieveOne().Split(';');
+                string[] tileChanges = sender.ReceiveLargeData().Split(';');
                 foreach (var tileChange in tileChanges)
                 {
                     if (tileChange != "")
@@ -126,7 +132,9 @@ public class OnlineLevelController : MonoBehaviour
                 Rigidbody2D newPlayer = Instantiate(Player.gameObject, transform).GetComponent<Rigidbody2D>();
                 newPlayer.GetComponent<SpriteRenderer>().material.color = new Color(0, 1, 1, 0.5f);
                 Destroy(newPlayer.gameObject.GetComponent<PlayerController>());
+                Destroy(newPlayer.gameObject.GetComponentInChildren<PixelPerfectCamera>());
                 Destroy(newPlayer.gameObject.GetComponentInChildren<Camera>());
+                Destroy(newPlayer.gameObject.GetComponentInChildren<AudioListener>());
                 Players[id] = newPlayer;
             }
             else if (Players.Count < id)

@@ -139,17 +139,19 @@ while True:
 			if not i == playerID:
 				result += str(i) + ":" + onlineLevelsState[levelName][i] + "|"
 		SendOne(client_socket, result.encode('utf-8'))
-	elif request == b"SEND_TILE":
+	elif request == b"SEND_TILES":
 		levelName = RecieveOne(client_socket).decode('utf-8')
 		playerID = int(RecieveOne(client_socket).decode('utf-8'))
+		tiles = RecieveOne(client_socket).decode('utf-8').split(';')
+		tiles = tiles[:len(tiles) - 1]
 		for i in range(len(onlineLevelsState[levelName])):
 			if not i == playerID:
-				onlineLevelstileChanges[levelName][i].append(RecieveOne(client_socket).decode('utf-8'))
+				onlineLevelstileChanges[levelName][i].extend(tiles)
 	elif request == b"SEEK_TILES":
 		levelName = RecieveOne(client_socket).decode('utf-8')
 		playerID = int(RecieveOne(client_socket).decode('utf-8'))
-		SendOne(client_socket, (';'.join(onlineLevelstileChanges[levelName][playerID])).encode('utf-8'))
-		onlineLevelstileChanges[levelName][playerID].clear()
+		SendLargeData(client_socket, (';'.join(onlineLevelstileChanges[levelName][playerID])))
+		onlineLevelstileChanges[levelName][playerID] = []
 	else:
 		SendOne(client_socket, "Hello".encode('utf-8'))
 

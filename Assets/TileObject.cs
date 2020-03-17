@@ -66,6 +66,7 @@ public class TileObject : MonoBehaviour
                     TileBGID = GameController.Instance.Selected.ID;
                     UpdateData();
                 }
+                OnlineLevelController.Instance.SendTile(tile);
             }
         }
         else if (Input.GetButton("Fire2") && GameController.Instance.Selected.Background)
@@ -78,9 +79,9 @@ public class TileObject : MonoBehaviour
                 }
                 TileBGID = GameController.Instance.Selected.ID;
                 UpdateData();
+                OnlineLevelController.Instance.SendTile(tile);
             }
         }
-        OnlineLevelController.Instance.SendTile(tile);
     }
     public void UpdateData()
     {
