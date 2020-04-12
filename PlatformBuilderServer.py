@@ -20,7 +20,8 @@ for i in IPParts:
 print("Server ID: " + tempString)
 
 onlineLevelsState = {}
-onlineLevelstileChanges = {}
+onlineLevelsTileChanges = {}
+onlineLevelsIDUpdates = {}
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((SERVER_IP, PORT))
@@ -120,13 +121,14 @@ def SocketCommunication(client_socket):
 			levelName = RecieveOne(client_socket).decode('utf-8')
 			onlineLevelsState[levelName] = []
 			onlineLevelsState[levelName].append(RecieveOne(client_socket).decode('utf-8'))
-			onlineLevelstileChanges[levelName] = []
-			onlineLevelstileChanges[levelName].append([])
+			onlineLevelsTileChanges[levelName] = []
+			onlineLevelsTileChanges[levelName].append([])
+			onlineLevelsIDUpdates[levelName] = []
 		elif request == b"JOIN_LEVEL":
 			levelName = RecieveOne(client_socket).decode('utf-8')
 			SendOne(client_socket, str(len(onlineLevelsState[levelName])).encode('utf-8'))
 			onlineLevelsState[levelName].append(RecieveOne(client_socket).decode('utf-8'))
-			onlineLevelstileChanges[levelName].append([])
+			onlineLevelsTileChanges[levelName].append([])
 		elif request == b"MOVE_PLAYER":
 			levelName = RecieveOne(client_socket).decode('utf-8')
 			playerID = int(RecieveOne(client_socket).decode('utf-8'))
@@ -146,12 +148,28 @@ def SocketCommunication(client_socket):
 			tiles = tiles[:len(tiles) - 1]
 			for i in range(len(onlineLevelsState[levelName])):
 				if not i == playerID:
-					onlineLevelstileChanges[levelName][i].extend(tiles)
+					onlineLevelsTileChanges[levelName][i].extend(tiles)
 		elif request == b"SEEK_TILES":
 			levelName = RecieveOne(client_socket).decode('utf-8')
 			playerID = int(RecieveOne(client_socket).decode('utf-8'))
-			SendLargeData(client_socket, (';'.join(onlineLevelstileChanges[levelName][playerID])))
-			onlineLevelstileChanges[levelName][playerID] = []
+			SendLargeData(client_socket, (';'.join(onlineLevelsTileChanges[levelName][playerID])))
+			onlineLevelsTileChanges[levelName][playerID] = []
+		elif request == b"SEEK_ID":
+			levelName = RecieveOne(client_socket).decode('utf-8')
+			playerID = int(RecieveOne(client_socket).decode('utf-8'))
+			print("List: " + str(onlineLevelsIDUpdates[levelName]))
+			temp = playerID
+			while temp in onlineLevelsIDUpdates[levelName]:
+				onlineLevelsIDUpdates[levelName].remove(playerID)
+				playerID -= 1
+				print("\n\n\n\nNew ID: " + str(playerID) + "\nList: " + str(onlineLevelsIDUpdates[levelName]) + "\n\n\n\n")
+			SendOne(client_socket, str(playerID).encode('utf-8'))
+		elif request == b"EXIT_LEVEL":
+			levelName = RecieveOne(client_socket).decode('utf-8')
+			playerID = int(RecieveOne(client_socket).decode('utf-8'))
+			onlineLevelsState[levelName].pop(playerID)
+			onlineLevelsTileChanges[levelName].pop(playerID)
+			onlineLevelsIDUpdates[levelName].extend(range(playerID + 1, len(onlineLevelsState[levelName]) + 1))
 		elif request == b"QUIT":
 			print("Goodbye!")
 			break

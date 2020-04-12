@@ -63,6 +63,17 @@ public class OnlineLevelController : MonoBehaviour
         sender.SendOne(PlayerToString(Player));
         online = true;
     }
+    public void ExitLevel()
+    {
+        Socket sender = Connect();
+        sender.SendOne("EXIT_LEVEL");
+        sender.SendOne(NetworkController.Instance.CurrentLevel);
+        sender.SendOne(playerID.ToString());
+    }
+    private void OnApplicationQuit()
+    {
+        ExitLevel();
+    }
     private void Update()
     {
         if (online)
@@ -72,6 +83,19 @@ public class OnlineLevelController : MonoBehaviour
             {
                 count -= 1;
                 Socket sender = Connect();
+                sender.SendOne("SEEK_ID");
+                sender.SendOne(NetworkController.Instance.CurrentLevel);
+                sender.SendOne(playerID.ToString());
+                int temp = int.Parse(sender.ReceiveOne());
+                if (playerID != temp)
+                {
+                    Debug.Log("Changed " + playerID + " to " + temp);
+                    Destroy(Players[temp].gameObject);
+                    Players[temp] = Players[playerID];
+                    Players[playerID] = null;
+                }
+                playerID = temp;
+                sender = Connect();
                 sender.SendOne("MOVE_PLAYER");
                 sender.SendOne(NetworkController.Instance.CurrentLevel);
                 sender.SendOne(playerID.ToString());
@@ -122,6 +146,7 @@ public class OnlineLevelController : MonoBehaviour
             {
                 Rigidbody2D newPlayer = Instantiate(Player.gameObject, transform).GetComponent<Rigidbody2D>();
                 newPlayer.GetComponent<SpriteRenderer>().material.color = new Color(0, 1, 1, 0.5f);
+                newPlayer.transform.position += new Vector3(0, 0, -1);
                 Destroy(newPlayer.gameObject.GetComponent<PlayerController>());
                 Destroy(newPlayer.gameObject.GetComponentInChildren<Camera>());
                 Destroy(newPlayer.gameObject.GetComponentInChildren<AudioListener>());
@@ -131,6 +156,7 @@ public class OnlineLevelController : MonoBehaviour
             {
                 Rigidbody2D newPlayer = Instantiate(Player.gameObject, transform).GetComponent<Rigidbody2D>();
                 newPlayer.GetComponent<SpriteRenderer>().material.color = new Color(0, 1, 1, 0.5f);
+                newPlayer.transform.position += new Vector3(0, 0, -1);
                 Destroy(newPlayer.gameObject.GetComponent<PlayerController>());
                 Destroy(newPlayer.gameObject.GetComponentInChildren<PixelPerfectCamera>());
                 Destroy(newPlayer.gameObject.GetComponentInChildren<Camera>());
@@ -143,6 +169,14 @@ public class OnlineLevelController : MonoBehaviour
             }
             StringToPlayer(parts[1], Players[id]);
         }
+        for (int i = players.Length; i < Players.Count; i++)
+        {
+            if (Players[i] != null && Players[i].gameObject != null)
+            {
+                Destroy(Players[i].gameObject);
+            }
+            Players.RemoveAt(i--);
+        }
     }
     private string PlayerToString(Rigidbody2D player)
     {
@@ -152,7 +186,7 @@ public class OnlineLevelController : MonoBehaviour
     {
         string[] parts = player.Split(';');
         string[] posParts = parts[0].Split(',');
-        playerRB.transform.position = new Vector3(float.Parse(posParts[0]), float.Parse(posParts[1]), -0.9f);
+        playerRB.transform.position = new Vector3(float.Parse(posParts[0]), float.Parse(posParts[1]), -1f);
         string[] velocityParts = parts[1].Split(',');
         playerRB.velocity = new Vector2(float.Parse(velocityParts[0]), float.Parse(velocityParts[1]));
     }

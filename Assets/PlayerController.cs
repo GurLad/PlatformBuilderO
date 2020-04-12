@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetButton("Cancel"))
         {
+            OnlineLevelController.Instance.ExitLevel();
             SceneManager.LoadScene("LevelSelect");
         }
         float vY = rigidbody.velocity.y;
