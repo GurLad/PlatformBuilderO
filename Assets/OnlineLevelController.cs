@@ -36,7 +36,7 @@ public class OnlineLevelController : MonoBehaviour
         Socket sender = Connect();
         sender.SendOne("JOIN_LEVEL");
         sender.SendOne(NetworkController.Instance.CurrentLevel);
-        playerID = int.Parse(sender.RecieveOne());
+        playerID = int.Parse(sender.ReceiveOne());
         for (int i = 0; i < playerID; i++)
         {
             Players.Add(null);
@@ -113,7 +113,7 @@ public class OnlineLevelController : MonoBehaviour
         sender.SendOne("SHOW_PLAYERS");
         sender.SendOne(NetworkController.Instance.CurrentLevel);
         sender.SendOne(playerID.ToString());
-        string[] players = sender.RecieveOne().Split('|');
+        string[] players = sender.ReceiveOne().Split('|');
         for (int i = 0; i < players.Length - 1; i++)
         {
             string[] parts = players[i].Split(':');

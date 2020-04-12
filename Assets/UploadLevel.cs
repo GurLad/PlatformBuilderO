@@ -15,7 +15,7 @@ public class UploadLevel : MonoBehaviour
         sender.SendOne("SAVE_LEVEL");
         sender.SendOne(LevelName.text);
         sender.SendLargeData(NetworkController.Instance.CurrentUser + "~" + GameController.Instance.ToSaveData());
-        Logger.text = sender.RecieveOne();
+        Logger.text = sender.ReceiveOne();
         Logger.color = new Color(Logger.color.r, Logger.color.g, Logger.color.b, 3);
         //sender.CloseSocket();
     }

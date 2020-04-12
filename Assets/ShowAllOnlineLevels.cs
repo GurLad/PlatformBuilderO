@@ -27,7 +27,7 @@ public class ShowAllOnlineLevels : MonoBehaviour
     {
         Socket sender = Connect();
         sender.SendOne("SEEK_ONLINE_LEVELS");
-        string[] allLevels = sender.RecieveOne().Split(';');
+        string[] allLevels = sender.ReceiveOne().Split(';');
         for (int i = 0; i < allLevels.Length - 1; i++)
         {
             LoadLevel newButton = Instantiate(Base.gameObject, Base.transform.parent).GetComponent<LoadLevel>();

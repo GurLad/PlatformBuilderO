@@ -18,6 +18,7 @@ public class ConnectToServer : MonoBehaviour
         if (socket != null)
         {
             socket.SendOne("Hello world!");
+            socket.ReceiveOne();
             SceneManager.LoadScene("Login");
         }
         else

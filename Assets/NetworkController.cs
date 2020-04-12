@@ -34,7 +34,7 @@ public class NetworkController : MonoBehaviour
         Socket sender = Connect();
         sender.SendOne("SEEK_PASSWORD");
         sender.SendOne(username);
-        string targetPassword = sender.RecieveOne();
+        string targetPassword = sender.ReceiveOne();
         targetPassword = targetPassword.Trim();
         Debug.Log(targetPassword);
         if (targetPassword != "")
@@ -45,7 +45,7 @@ public class NetworkController : MonoBehaviour
                 Debug.Log(string.Join(",", password.ToCharArray()));
                 return LoginState.Failed;
             }
-            sender.CloseSocket();
+            //sender.CloseSocket();
             CurrentUser = username;
             return LoginState.Succeeded;
         }
@@ -64,9 +64,14 @@ public class NetworkController : MonoBehaviour
         Socket sender = Connect();
         sender.SendOne("SEEK_LEVEL");
         sender.SendOne(level);
-        if (sender.RecieveOne() != "Nonexistant level")
+        if (sender.ReceiveOne() != "Nonexistant level")
         {
             GameController.Instance.FromSaveData(sender.ReceiveLargeData());
         }
+    }
+    private void OnApplicationQuit()
+    {
+        Socket sender = Connect();
+        sender.SendOne("QUIT");
     }
 }

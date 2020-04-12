@@ -8,8 +8,13 @@ using UnityEngine;
 public static class SocketFunctions
 {
     public static string IPString { get; set; } = "127.0.0.1";
+    private static Socket socket;
     public static Socket Connect()
     {
+        if (socket != null)
+        {
+            return socket;
+        }
         try
         {
 
@@ -37,7 +42,7 @@ public static class SocketFunctions
                 // that we are connected 
                 Debug.Log("Socket connected to -> " +
                               sender.RemoteEndPoint.ToString());
-                return sender;
+                return socket = sender;
             }
 
             // Manage of Socket's Exceptions 
@@ -78,7 +83,7 @@ public static class SocketFunctions
         byte[] messageSent = Encoding.UTF8.GetBytes(data.Length.ToString() + '\a' + data);
         int byteSent = sender.Send(messageSent);
     }
-    public static string RecieveOne(this Socket sender)
+    public static string ReceiveOne(this Socket sender)
     {
         // Data buffer 
         byte[] messageReceived = new byte[1024];
@@ -94,14 +99,14 @@ public static class SocketFunctions
             sender.Receive(messageReceived, numFilled, 1, SocketFlags.None);
         } while (messageReceived[numFilled++] != '\a');
         int size = int.Parse(Encoding.UTF8.GetString(messageReceived, 0, numFilled - 1));
-        Debug.Log("Size: " + size);
+        //Debug.Log("Size: " + size);
         if (size == 0)
         {
             return "";
         }
         sender.Receive(messageReceived, size, SocketFlags.None);
         string messageString = Encoding.UTF8.GetString(messageReceived,0,size);
-        Debug.Log(messageString.Length - 1);
+        //Debug.Log(messageString.Length - 1);
         //messageString = messageString.Substring(0, 4);
         Debug.Log("Message from Server -> " +
               messageString);
@@ -122,11 +127,11 @@ public static class SocketFunctions
     }
     public static string ReceiveLargeData(this Socket sender)
     {
-        int fileSize = int.Parse(sender.RecieveOne());
+        int fileSize = int.Parse(sender.ReceiveOne());
         string result = "";
         for (int i = 0; i < fileSize; i++)
         {
-            result += sender.RecieveOne();
+            result += sender.ReceiveOne();
         }
         return result;
     }
