@@ -5,7 +5,7 @@ import os
 import threading
 from SocketFunctions import *
 
-print("Version 1")
+print("Platform Builder O Server - Version 1.0, 16/04/2020, by Gur Ladizhinsky")
 
 hostname = socket.gethostname()    
 IPAddr = socket.gethostbyname(hostname)
@@ -126,6 +126,10 @@ def SocketCommunication(client_socket):
 			onlineLevelsIDUpdates[levelName] = []
 		elif request == b"JOIN_LEVEL":
 			levelName = RecieveOne(client_socket).decode('utf-8')
+			if not levelName in onlineLevelsState:
+				onlineLevelsState[levelName] = []
+				onlineLevelsTileChanges[levelName] = []
+				onlineLevelsIDUpdates[levelName] = []				
 			SendOne(client_socket, str(len(onlineLevelsState[levelName])).encode('utf-8'))
 			onlineLevelsState[levelName].append(RecieveOne(client_socket).decode('utf-8'))
 			onlineLevelsTileChanges[levelName].append([])
@@ -169,7 +173,14 @@ def SocketCommunication(client_socket):
 			playerID = int(RecieveOne(client_socket).decode('utf-8'))
 			onlineLevelsState[levelName].pop(playerID)
 			onlineLevelsTileChanges[levelName].pop(playerID)
-			onlineLevelsIDUpdates[levelName].extend(range(playerID + 1, len(onlineLevelsState[levelName]) + 1))
+			if len(onlineLevelsState[levelName]) <= 0:
+				onlineLevelsState.pop(levelName)
+				onlineLevelsTileChanges.pop(levelName)
+				onlineLevelsIDUpdates.pop(levelName)
+				print(onlineLevelsState)
+			else:
+				print("Len: " + str(len(onlineLevelsState[levelName])))
+				onlineLevelsIDUpdates[levelName].extend(range(playerID + 1, len(onlineLevelsState[levelName]) + 1))
 		elif request == b"QUIT":
 			print("Goodbye!")
 			break

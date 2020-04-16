@@ -32,7 +32,6 @@ public class OnlineLevelController : MonoBehaviour
     public void JoinOnline()
     {
         HostOnly.SetActive(false);
-        ShowPlayers();
         Socket sender = Connect();
         sender.SendOne("JOIN_LEVEL");
         sender.SendOne(NetworkController.Instance.CurrentLevel);
@@ -44,6 +43,7 @@ public class OnlineLevelController : MonoBehaviour
         Players.Add(Player);
         sender.SendOne(PlayerToString(Player));
         online = true;
+        ShowPlayers();
     }
     public void SendTile(Tile tile)
     {
@@ -65,10 +65,13 @@ public class OnlineLevelController : MonoBehaviour
     }
     public void ExitLevel()
     {
-        Socket sender = Connect();
-        sender.SendOne("EXIT_LEVEL");
-        sender.SendOne(NetworkController.Instance.CurrentLevel);
-        sender.SendOne(playerID.ToString());
+        if (online)
+        {
+            Socket sender = Connect();
+            sender.SendOne("EXIT_LEVEL");
+            sender.SendOne(NetworkController.Instance.CurrentLevel);
+            sender.SendOne(playerID.ToString());
+        }
     }
     private void OnApplicationQuit()
     {
