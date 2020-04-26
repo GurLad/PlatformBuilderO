@@ -69,6 +69,14 @@ public class NetworkController : MonoBehaviour
             GameController.Instance.FromSaveData(sender.ReceiveLargeData());
         }
     }
+    public string SaveLevel(string level)
+    {
+        Socket sender = Connect();
+        sender.SendOne("SAVE_LEVEL");
+        sender.SendOne(level);
+        sender.SendLargeData(CurrentUser + "~" + GameController.Instance.ToSaveData());
+        return sender.ReceiveOne();
+    }
     private void OnApplicationQuit()
     {
         Socket sender = Connect();

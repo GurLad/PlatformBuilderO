@@ -14,6 +14,9 @@ public class OnlineLevelController : MonoBehaviour
     public float TileChecksPerSecond = 1;
     public GameObject HostOnly;
     public GameObject OfflineOnly;
+    public Image TurnOnlineButton;
+    public Sprite OnlineIcon;
+    public Logger Logger;
     [HideInInspector]
     public List<Rigidbody2D> Players;
     private float count;
@@ -28,6 +31,18 @@ public class OnlineLevelController : MonoBehaviour
         {
             JoinOnline();
         }
+    }
+    public void SetLevelName(string name)
+    {
+        NetworkController.Instance.CurrentLevel = name;
+    }
+    public void LoadLevel()
+    {
+        NetworkController.Instance.LoadLevel(NetworkController.Instance.CurrentLevel);
+    }
+    public void SaveLevel()
+    {
+        Logger.Log(NetworkController.Instance.SaveLevel(NetworkController.Instance.CurrentLevel));
     }
     public void JoinOnline()
     {
@@ -54,6 +69,11 @@ public class OnlineLevelController : MonoBehaviour
     }
     public void TurnOnline()
     {
+        if (NetworkController.Instance.SaveLevel(NetworkController.Instance.CurrentLevel) == "No access! Changes not saved")
+        {
+            return;
+        }
+        TurnOnlineButton.sprite = OnlineIcon;
         OfflineOnly.SetActive(false);
         Socket sender = Connect();
         sender.SendOne("TURN_ONLINE");

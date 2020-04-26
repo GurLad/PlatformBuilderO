@@ -6,7 +6,7 @@ import threading
 import sqlite3
 from SocketFunctions import *
 
-print("Platform Builder O Server - Version 1.0, 16/04/2020, by Gur Ladizhinsky")
+print("Platform Builder O Server - Version 1.1, 26/04/2020, by Gur Ladizhinsky")
 
 hostname = socket.gethostname()    
 IPAddr = socket.gethostbyname(hostname)
@@ -77,7 +77,6 @@ def SocketCommunication(client_socket):
 					SendOne(client_socket, b"No access! Changes not saved")
 					print("Nope! Compare:\r\n" + fileUsername + ",\r\n" + newUsername + ".")
 					file.close()
-					client_socket.close();
 					continue
 			file = open("data\\" + fileName, 'w')
 			file.write(fileContent)
