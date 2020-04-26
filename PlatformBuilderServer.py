@@ -3,6 +3,7 @@ import json
 import math
 import os
 import threading
+import sqlite3
 from SocketFunctions import *
 
 print("Platform Builder O Server - Version 1.0, 16/04/2020, by Gur Ladizhinsky")
@@ -12,6 +13,7 @@ IPAddr = socket.gethostbyname(hostname)
 
 SERVER_IP = IPAddr
 PORT = 4242
+DATABASE_NAME = "Database.db"
 
 IPParts = SERVER_IP.split('.')
 tempString = ''
@@ -26,6 +28,21 @@ onlineLevelsIDUpdates = {}
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((SERVER_IP, PORT))
 server_socket.listen(100)
+
+def FindUserPassword(username):
+	header = sqlite3.connect(DATABASE_NAME)
+	curs = header.cursor()
+	curs.execute("SELECT * FROM Users WHERE Name = (?)", (username,))
+	data = curs.fetchall()
+	if (len(data) == 0):
+		return ""
+	return data[0][1]
+
+def SaveUserPassword(username, password):
+	header = sqlite3.connect(DATABASE_NAME)
+	curs = header.cursor()
+	curs.execute("INSERT INTO Users VALUES(?, ?)", (username, password))
+	header.commit()
 
 def FileExists(fpath):  
     return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
@@ -88,18 +105,12 @@ def SocketCommunication(client_socket):
 				SendLargeData(client_socket, fileData)
 		elif request == b"SEEK_PASSWORD":
 			username = RecieveOne(client_socket).decode('utf-8')
-			if not FileExists("data\\" + username + ".user"):
-				open("data\\" + username + ".user", 'w').close()
-			file = open("data\\" + username + ".user", 'r')
-			password = file.read()
+			password = FindUserPassword(username)
 			SendOne(client_socket, password.encode('utf-8'))
-			file.close()
 		elif request == b"SAVE_PASSWORD":
 			username = RecieveOne(client_socket).decode('utf-8')
 			password = RecieveOne(client_socket).decode('utf-8')
-			file = open("data\\" + username + ".user", 'w')
-			file.write(password)
-			file.close()
+			SaveUserPassword(username, password)
 		elif request == b"SEEK_LEVELS_BY":
 			username = RecieveOne(client_socket).decode('utf-8')
 			result = ""
