@@ -14,6 +14,7 @@ public class OnlineLevelController : MonoBehaviour
     public float TileChecksPerSecond = 1;
     public GameObject HostOnly;
     public GameObject OfflineOnly;
+    public InputField LevelNameDisplay;
     public Image TurnOnlineButton;
     public Sprite OnlineIcon;
     public Logger Logger;
@@ -27,6 +28,7 @@ public class OnlineLevelController : MonoBehaviour
     private void Start()
     {
         Instance = this;
+        LevelNameDisplay.text = NetworkController.Instance.CurrentLevel;
         if (NetworkController.Instance.JoinOnline)
         {
             JoinOnline();
@@ -59,6 +61,20 @@ public class OnlineLevelController : MonoBehaviour
         sender.SendOne(PlayerToString(Player));
         online = true;
         ShowPlayers();
+        sender = Connect();
+        sender.SendOne("SEEK_TILES");
+        sender.SendOne(NetworkController.Instance.CurrentLevel);
+        sender.SendOne(playerID.ToString());
+        string[] tileChanges = sender.ReceiveLargeData().Split(';');
+        foreach (var tileChange in tileChanges)
+        {
+            if (tileChange != "")
+            {
+                string[] tile = tileChange.Split(':');
+                string[] pos = tile[0].Split(',');
+                GameController.Instance.SetTile(int.Parse(pos[0]), int.Parse(pos[1]), int.Parse(tile[1]), int.Parse(tile[2]));
+            }
+        }
     }
     public void SendTile(Tile tile)
     {
@@ -73,11 +89,16 @@ public class OnlineLevelController : MonoBehaviour
         {
             return;
         }
-        TurnOnlineButton.sprite = OnlineIcon;
-        OfflineOnly.SetActive(false);
         Socket sender = Connect();
         sender.SendOne("TURN_ONLINE");
         sender.SendOne(NetworkController.Instance.CurrentLevel);
+        if (sender.ReceiveOne() != "TURN")
+        {
+            Logger.Log("This level is already online!");
+            return;
+        }
+        TurnOnlineButton.sprite = OnlineIcon;
+        OfflineOnly.SetActive(false);
         playerID = 0;
         Players.Add(Player);
         sender.SendOne(PlayerToString(Player));

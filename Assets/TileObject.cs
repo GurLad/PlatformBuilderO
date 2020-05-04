@@ -30,7 +30,6 @@ public class TileObject : MonoBehaviour
             return tile.TileType;
         }
     }
-    public SpriteRenderer BGRenderer;
     public Vector2Int Pos
     {
         get
@@ -42,6 +41,7 @@ public class TileObject : MonoBehaviour
             tile.Pos = value;
         }
     }
+    public SpriteRenderer BGRenderer;
     private Tile tile;
     private SpriteRenderer spriteRenderer;
     private new Collider2D collider;
@@ -120,13 +120,13 @@ public class TileObject : MonoBehaviour
         {
             if (other.CustomCollider)
             {
-                Destroy(collider);
+                DestroyImmediate(collider);
                 collider = gameObject.AddComponent<PolygonCollider2D>();
                 ((PolygonCollider2D)collider).autoTiling = true;
             }
             else
             {
-                Destroy(collider);
+                DestroyImmediate(collider);
                 collider = gameObject.AddComponent<BoxCollider2D>();
                 ((BoxCollider2D)collider).size = new Vector2(0.98f, 0.98f);
             }

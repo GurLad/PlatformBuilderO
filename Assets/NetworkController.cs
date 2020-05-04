@@ -79,7 +79,10 @@ public class NetworkController : MonoBehaviour
     }
     private void OnApplicationQuit()
     {
-        Socket sender = Connect();
-        sender.SendOne("QUIT");
+        if (Connected)
+        {
+            Socket sender = Connect();
+            sender.SendOne("QUIT");
+        }
     }
 }

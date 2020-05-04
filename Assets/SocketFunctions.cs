@@ -8,6 +8,7 @@ using UnityEngine;
 public static class SocketFunctions
 {
     public static string IPString { get; set; } = "127.0.0.1";
+    public static bool Connected { get { return socket != null; } }
     private static Socket socket;
     public static Socket Connect()
     {

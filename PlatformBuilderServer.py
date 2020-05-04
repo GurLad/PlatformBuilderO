@@ -54,7 +54,7 @@ def SocketCommunication(client_socket):
 		if request == b"SAVE_LEVEL":
 			fileName = RecieveOne(client_socket)#client_socket.recv(1024)
 			fileName = fileName.decode('utf-8') + ".pbl"
-			print("Filename: " + fileName);
+			print("Filename: " + fileName)
 			#if fileName[len(fileName) - len("FILE_END"):] != "FILE_END":
 			#	client_socket.send(b"Error")
 			#	print("Error!")
@@ -129,9 +129,15 @@ def SocketCommunication(client_socket):
 			SendOne(client_socket, result.encode('utf-8'))
 		elif request == b"TURN_ONLINE":
 			levelName = RecieveOne(client_socket).decode('utf-8')
+			if levelName in onlineLevelsState:
+				SendOne(client_socket, b"This level is already online!")
+				continue
+			else:
+				SendOne(client_socket, b"TURN")
 			onlineLevelsState[levelName] = []
 			onlineLevelsState[levelName].append(RecieveOne(client_socket).decode('utf-8'))
 			onlineLevelsTileChanges[levelName] = []
+			onlineLevelsTileChanges[levelName].append([])
 			onlineLevelsTileChanges[levelName].append([])
 			onlineLevelsIDUpdates[levelName] = []
 		elif request == b"JOIN_LEVEL":
@@ -142,7 +148,7 @@ def SocketCommunication(client_socket):
 				onlineLevelsIDUpdates[levelName] = []				
 			SendOne(client_socket, str(len(onlineLevelsState[levelName])).encode('utf-8'))
 			onlineLevelsState[levelName].append(RecieveOne(client_socket).decode('utf-8'))
-			onlineLevelsTileChanges[levelName].append([])
+			onlineLevelsTileChanges[levelName].append(onlineLevelsTileChanges[levelName][len(onlineLevelsTileChanges[levelName]) - 1])
 		elif request == b"MOVE_PLAYER":
 			levelName = RecieveOne(client_socket).decode('utf-8')
 			playerID = int(RecieveOne(client_socket).decode('utf-8'))
@@ -160,7 +166,7 @@ def SocketCommunication(client_socket):
 			playerID = int(RecieveOne(client_socket).decode('utf-8'))
 			tiles = RecieveOne(client_socket).decode('utf-8').split(';')
 			tiles = tiles[:len(tiles) - 1]
-			for i in range(len(onlineLevelsState[levelName])):
+			for i in range(len(onlineLevelsState[levelName]) + 1):
 				if not i == playerID:
 					onlineLevelsTileChanges[levelName][i].extend(tiles)
 		elif request == b"SEEK_TILES":
