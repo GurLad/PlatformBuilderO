@@ -6,7 +6,7 @@ import threading
 import sqlite3
 from SocketFunctions import *
 
-print("Platform Builder O Server - Version 1.1, 26/04/2020, by Gur Ladizhinsky")
+print("Platform Builder O Server - Version 1.2, 11/05/2020, by Gur Ladizhinsky")
 
 hostname = socket.gethostname()    
 IPAddr = socket.gethostbyname(hostname)
@@ -41,8 +41,27 @@ def FindUserPassword(username):
 def SaveUserPassword(username, password):
 	header = sqlite3.connect(DATABASE_NAME)
 	curs = header.cursor()
-	curs.execute("INSERT INTO Users VALUES(?, ?)", (username, password))
+	curs.execute("INSERT INTO Users VALUES(?, ?, ?)", (username, password, ''))
 	header.commit()
+	
+def SaveUserLevel(username, levelName):
+	header = sqlite3.connect(DATABASE_NAME)
+	curs = header.cursor()
+	curs.execute("SELECT * FROM Users WHERE Name = (?)", (username,))
+	data = curs.fetchall()
+	if (data[0][2] == ""):
+		curs.execute("UPDATE Users SET Levels = (?) WHERE Name = (?)", (levelName, username))
+		header.commit()
+	else:
+		curs.execute("UPDATE Users SET Levels = (?) WHERE Name = (?)", (data[0][2] + ";" + levelName, username))
+		header.commit()
+	
+def SeekUserLevels(username):
+	header = sqlite3.connect(DATABASE_NAME)
+	curs = header.cursor()
+	curs.execute("SELECT * FROM Users WHERE Name = (?)", (username,))
+	data = curs.fetchall()
+	return data[0][2]
 
 def FileExists(fpath):  
     return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
@@ -63,6 +82,8 @@ def SocketCommunication(client_socket):
 			#fileName = fileName[:len(fileName) - len("FILE_END")]
 			print("Recieved: " + str(fileName))
 			fileContent = RecieveLargeData(client_socket)
+			temp = fileContent.split('~')
+			newUsername = temp[0]
 			#fileContent = client_socket.recv(1024)
 			print("Recieved: " + fileContent)
 			print("Writing...")
@@ -70,14 +91,14 @@ def SocketCommunication(client_socket):
 				file = open("data\\" + fileName, 'r')
 				temp = file.read().split('~')
 				fileUsername = temp[0]
-				temp = fileContent.split('~')
-				newUsername = temp[0]
 				#fileUsername != newUsername or 
 				if (fileUsername != newUsername):
 					SendOne(client_socket, b"No access! Changes not saved")
 					print("Nope! Compare:\r\n" + fileUsername + ",\r\n" + newUsername + ".")
 					file.close()
 					continue
+			else:
+				SaveUserLevel(newUsername, fileName[:-4])
 			file = open("data\\" + fileName, 'w')
 			file.write(fileContent)
 			file.close()
@@ -112,15 +133,8 @@ def SocketCommunication(client_socket):
 			SaveUserPassword(username, password)
 		elif request == b"SEEK_LEVELS_BY":
 			username = RecieveOne(client_socket).decode('utf-8')
-			result = ""
-			for file in os.listdir("./data/"):
-				if file.endswith(".pbl"):
-					fileName = os.path.join("", file).split('.')[0]
-					file = open("data\\" + fileName + ".pbl", 'r')
-					temp = file.read().split('~')
-					fileUsername = temp[0]
-					if (fileUsername == username):
-						result += fileName + ";"
+			result = SeekUserLevels(username)
+			print(result)
 			SendOne(client_socket, result.encode('utf-8'))
 		elif request == b"SEEK_ONLINE_LEVELS":
 			result = ""
