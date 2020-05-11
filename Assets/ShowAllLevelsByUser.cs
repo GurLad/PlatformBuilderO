@@ -13,6 +13,10 @@ public class ShowAllLevelsByUser : MonoBehaviour
         sender.SendOne("SEEK_LEVELS_BY");
         sender.SendOne(NetworkController.Instance.CurrentUser);
         string[] allLevels = sender.ReceiveOne().Split(';');
+        if (allLevels[0] == "")
+        {
+            return;
+        }
         for (int i = 0; i < allLevels.Length; i++)
         {
             LoadLevel newButton = Instantiate(Base.gameObject, Base.transform.parent).GetComponent<LoadLevel>();
