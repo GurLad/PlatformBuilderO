@@ -224,7 +224,7 @@ public class OnlineLevelController : MonoBehaviour
     }
     private string PlayerToString(Rigidbody2D player)
     {
-        return player.transform.position.x + "," + player.transform.position.y + ";" + player.velocity.x + "," + player.velocity.y;
+        return player.transform.position.x + "," + player.transform.position.y + ";" + player.velocity.x + "," + player.velocity.y + ";" + (PlayerController.Instance.Won ? "T" : "F");
     }
     private void StringToPlayer(string player, Rigidbody2D playerRB)
     {
@@ -233,5 +233,13 @@ public class OnlineLevelController : MonoBehaviour
         playerRB.transform.position = new Vector3(float.Parse(posParts[0]), float.Parse(posParts[1]), -1f);
         string[] velocityParts = parts[1].Split(',');
         playerRB.velocity = new Vector2(float.Parse(velocityParts[0]), float.Parse(velocityParts[1]));
+        if (parts[2] == "T")
+        {
+            playerRB.GetComponent<SpriteRenderer>().sprite = PlayerController.Instance.WinSprite;
+        }
+        else
+        {
+            playerRB.GetComponent<SpriteRenderer>().sprite = PlayerController.Instance.BaseSprite;
+        }
     }
 }

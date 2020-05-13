@@ -9,7 +9,10 @@ public class PlayerController : MonoBehaviour
     public float Speed;
     public float JumpForce;
     public Sprite WinSprite;
-    private Sprite BaseSprite;
+    [HideInInspector]
+    public Sprite BaseSprite;
+    [HideInInspector]
+    public bool Won { get; private set; } = false;
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rigidbody;
     private void Start()
@@ -82,5 +85,6 @@ public class PlayerController : MonoBehaviour
         {
             spriteRenderer.sprite = BaseSprite;
         }
+        Won = won;
     }
 }
